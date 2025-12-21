@@ -55,7 +55,7 @@ const Product = ({
       <Pressable className="absolute right-3 top-3 rounded-full bg-zinc-300/40 p-2">
         <Icon className=" text-red-500" as={HeartIcon} size="md" />
       </Pressable>
-      <Text numberOfLines={3}>{description}</Text>
+      <Text numberOfLines={3}>{description} Hello</Text>
     </Card>
   );
 };
