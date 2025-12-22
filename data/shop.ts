@@ -1,13 +1,13 @@
-const image1 = require("@/data/categories/iphone-1.avif");
-const image2 = require("@/data/categories/iphone-2.avif");
-const image3 = require("@/data/categories/iphone-3.webp");
-const image4 = require("@/data/categories/iphone-4.png");
-const image5 = require("@/data/categories/iphone-5.png");
-const image6 = require("@/data/categories/iphone-1.avif");
-const image7 = require("@/data/categories/iphone-2.avif");
-const image8 = require("@/data/categories/iphone-3.webp");
-const image9 = require("@/data/categories/iphone-4.png");
-const image10 = require("@/data/categories/iphone-5.png");
+const image1 = require("@/data/images/categories/iphone-1.avif");
+const image2 = require("@/data/images/categories/iphone-2.avif");
+const image3 = require("@/data/images/categories/iphone-3.webp");
+const image4 = require("@/data/images/categories/iphone-4.png");
+const image5 = require("@/data/images/categories/iphone-5.png");
+const image6 = require("@/data/images/categories/iphone-1.avif");
+const image7 = require("@/data/images/categories/iphone-2.avif");
+const image8 = require("@/data/images/categories/iphone-3.webp");
+const image9 = require("@/data/images/categories/iphone-4.png");
+const image10 = require("@/data/images/categories/iphone-5.png");
 
 export const DataCat = [
   {

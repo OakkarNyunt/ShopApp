@@ -6,7 +6,6 @@ import { VStack } from "@/components/ui/vstack";
 import { DataCat, DataProduct } from "@/data/shop";
 import { Image } from "expo-image";
 import { FlatList, ScrollView } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 //local import
 import Categories from "@/components/custom/Categories";
@@ -15,6 +14,7 @@ import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { MoveUpRightIcon } from "lucide-react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
