@@ -75,7 +75,7 @@ export const DataProduct = [
   },
   {
     id: "2",
-    name: "Samsaung",
+    name: "iPhone",
     image: image2,
     rating: 4.9,
     Price: 100,
@@ -85,17 +85,17 @@ export const DataProduct = [
   },
   {
     id: "3",
-    name: "Samsaung",
+    name: "Honor",
     image: image3,
     rating: 4.9,
     Price: 100,
     discount: "20",
     description:
-      "Compare Samsung Galaxy phones and explore their key differences in our side-by-side specs comparison tool. Search for the perfect Galaxy phone and find the ideal one for you.",
+      "Compare Samsung Galaxy phones and explore their key differences in our side-by-side specs comparison tool. Search for the perfect Galaxy phone and find the ideal one for youCompare Samsung Galaxy phones and explore their key differences in our side-by-side specs comparison tool",
   },
   {
     id: "4",
-    name: "Samsaung",
+    name: "OPPO",
     image: image4,
     rating: 4.9,
     Price: 100,
@@ -105,7 +105,7 @@ export const DataProduct = [
   },
   {
     id: "5",
-    name: "Samsaung",
+    name: "Redmi",
     image: image5,
     rating: 4.9,
     Price: 100,
@@ -115,7 +115,7 @@ export const DataProduct = [
   },
   {
     id: "6",
-    name: "Samsaung",
+    name: "Realme",
     image: image6,
     rating: 4.9,
     Price: 100,
@@ -125,7 +125,7 @@ export const DataProduct = [
   },
   {
     id: "7",
-    name: "Samsaung",
+    name: "Huawei",
     image: image7,
     rating: 4.9,
     Price: 100,
@@ -135,7 +135,7 @@ export const DataProduct = [
   },
   {
     id: "8",
-    name: "Samsaung",
+    name: "Tecno",
     image: image8,
     rating: 4.9,
     Price: 100,
@@ -174,3 +174,19 @@ export const DataProduct = [
       "Compare Samsung Galaxy phones and explore their key differences in our side-by-side specs comparison tool. Search for the perfect Galaxy phone and find the ideal one for you.",
   },
 ];
+export const selectItems = {
+  colors: [
+    { id: "uuid1", name: "black", bgColor: "#000000", stock: true },
+    { id: "uuid2", name: "blue", bgColor: "#2B4CC3", stock: true },
+    { id: "uuid3", name: "purple", bgColor: "#6680C2", stock: false },
+    { id: "uuid4", name: "white", bgColor: "#ffffff", stock: true },
+  ],
+  sizes: [
+    { id: "uuid5", name: "XS", stock: false },
+    { id: "uuid6", name: "S", stock: true },
+    { id: "uuid7", name: "M", stock: true },
+    { id: "uuid8", name: "L", stock: false },
+    { id: "uuid9", name: "XL", stock: true },
+    { id: "uuid10", name: "XXL", stock: true },
+  ],
+};

@@ -1,131 +1,78 @@
-import { Image } from "expo-image";
-import React, { useRef } from "react";
-import { Animated, Dimensions, StyleSheet, View } from "react-native";
-import PagerView from "react-native-pager-view";
-import { SafeAreaView } from "react-native-safe-area-context";
+import Cart from "@/components/custom/Cart";
+import Colors from "@/components/custom/Colors";
+import Sizes from "@/components/custom/Sizes";
 
-const blurhash =
-  "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+import ViewPager from "@/components/custom/ViewPager";
+import { HStack } from "@/components/ui/hstack";
+import { Icon } from "@/components/ui/icon";
+import { Pressable } from "@/components/ui/pressable";
+import { Text } from "@/components/ui/text";
 
-const data = [
-  {
-    key: "1",
-    imageUri: require("@/data/images/banner/phonePageViewer2.avif"),
-    color: "#9dcdfa",
-  },
-  {
-    key: "2",
-    imageUri: require("@/data/images/banner/phonePageViewer2.avif"),
-    color: "#db9efa",
-  },
-  {
-    key: "3",
-    imageUri: require("@/data/images/banner/phonePageViewer2.avif"),
-    color: "#999",
-  },
-  {
-    key: "fourth",
-    imageUri: require("@/data/images/banner/phonePageViewer2.avif"),
-    color: "#a1e3a1",
-  },
-];
+import { VStack } from "@/components/ui/vstack";
+import { DataProduct } from "@/data/shop";
+import { Stack, useLocalSearchParams } from "expo-router";
+import { HeartIcon, StarIcon } from "lucide-react-native";
+import React, { useState } from "react";
 
-const { width, height } = Dimensions.get("window");
-const DOT_SIZE = 20;
-
-function Pagination({ progress }: { progress: Animated.Value }) {
-  const translateX = Animated.multiply(progress, DOT_SIZE);
-
+const ProductDetail = () => {
+  const { id } = useLocalSearchParams();
+  const product = DataProduct.find((product) => product.id == id);
+  const [see, setSee] = useState(false);
   return (
-    <View style={styles.pagination}>
-      <Animated.View
-        style={[styles.paginationIndicator, { transform: [{ translateX }] }]}
-      />
-      {data.map((item) => (
-        <View key={item.key} style={styles.paginationDotContainer}>
-          <View
-            style={[styles.paginationDot, { backgroundColor: item.color }]}
-          />
-        </View>
-      ))}
-    </View>
-  );
-}
+    <VStack>
+      <Stack.Screen
+        options={{
+          headerTitle: "Product Details",
 
-export default function PageViewerCarousel() {
-  const progress = useRef(new Animated.Value(0)).current;
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <PagerView
-        style={styles.pagerView}
-        initialPage={0}
-        onPageScroll={(e) => {
-          const { position, offset } = e.nativeEvent;
-          progress.setValue(position + offset);
+          headerRight: () => (
+            <Pressable className="pr-4">
+              <Cart />
+            </Pressable>
+          ),
         }}
-      >
-        {data.map((item) => (
-          <View key={item.key} style={styles.page}>
-            <Image
-              source={item.imageUri}
-              style={styles.image}
-              placeholder={{ blurhash }}
-              contentFit="contain"
-              transition={0}
-            />
-          </View>
-        ))}
-      </PagerView>
-
-      <Pagination progress={progress} />
-    </SafeAreaView>
+      />
+      <ViewPager />
+      <VStack className="px-4">
+        <HStack className="items-center justify-between">
+          <HStack space="md">
+            <Text className="font-bold">{product?.name}</Text>
+            <Icon as={StarIcon} className="text-yellow-500" size="md" />
+            <Text className="">{product?.rating}</Text>
+          </HStack>
+          <HStack>
+            <Pressable className="rounded-full bg-zinc-300/40 p-3 ">
+              <Icon className=" text-red-500" as={HeartIcon} size="md" />
+            </Pressable>
+          </HStack>
+        </HStack>
+        <HStack space="md">
+          <Text className="font-bold text-red-500 line-through">
+            ${(product?.Price ?? 0).toFixed(2)}
+          </Text>
+          <Text className="font-bold text-green-500">
+            $
+            {(
+              Number(product?.Price ?? 0) -
+              (Number(product?.Price ?? 0) * Number(product?.discount ?? 0)) /
+                100
+            ).toFixed(2)}
+          </Text>
+        </HStack>
+        <Text className="mt-4" numberOfLines={see ? undefined : 3}>
+          {product?.description}
+        </Text>
+        <Pressable onPress={() => setSee((p) => !p)}>
+          <Text className="font-bold">{see ? "See less" : "See more..."}</Text>
+        </Pressable>
+        <VStack space="xl">
+          <Text className="mt-4 font-semibold">Choose Color:</Text>
+          <Colors />
+          <Text className="mt-4 font-semibold">Choose Size:</Text>
+          <Sizes />
+        </VStack>
+      </VStack>
+    </VStack>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    height: height / 4,
-  },
-  pagerView: {
-    width: "100%",
-    height: "100%",
-  },
-  page: {
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  image: {
-    width: "100%",
-    height: width * 0.75,
-  },
-
-  pagination: {
-    position: "absolute",
-    left: (width - data.length * DOT_SIZE) / 2,
-    bottom: 20,
-    flexDirection: "row",
-    height: DOT_SIZE,
-  },
-  paginationDotContainer: {
-    width: DOT_SIZE,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  paginationDot: {
-    width: DOT_SIZE * 0.3,
-    height: DOT_SIZE * 0.3,
-    borderRadius: DOT_SIZE * 0.15,
-  },
-  paginationIndicator: {
-    position: "absolute",
-    width: DOT_SIZE,
-    height: DOT_SIZE,
-    borderRadius: DOT_SIZE / 2,
-    borderWidth: 2,
-    borderColor: "#ddd",
-  },
-});
+export default ProductDetail;

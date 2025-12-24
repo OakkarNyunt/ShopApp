@@ -28,7 +28,14 @@ const Product = ({
 }: ProductType) => {
   return (
     <Card className=" flex w-1/2 items-center rounded-md bg-zinc-400/20">
-      <Pressable onPress={() => router.navigate("/ProductDetail")}>
+      <Pressable
+        onPress={() =>
+          router.navigate({
+            pathname: "/ProductDetail",
+            params: { id: id },
+          })
+        }
+      >
         <Image
           style={{
             width: 80,
@@ -57,7 +64,7 @@ const Product = ({
         <Icon className=" text-red-500" as={HeartIcon} size="md" />
       </Pressable>
       <Text numberOfLines={2} className="text-sm">
-        {description} Hello
+        {description}
       </Text>
     </Card>
   );
