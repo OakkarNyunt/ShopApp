@@ -34,7 +34,7 @@ export default function HomeScreen() {
         </Pressable>
         <Cart />
       </HStack>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <Image
           style={{ width: "100%", aspectRatio: 19 / 6 }}
           source={require("@/assets/images/shoppingBanner.jpg")}

@@ -1,4 +1,5 @@
 import Cart from "@/components/custom/Cart";
+import FloatingCart from "@/components/custom/FloatingCart";
 import ViewPager from "@/components/custom/ViewPager";
 
 import { Button, ButtonText } from "@/components/ui/button";
@@ -18,9 +19,10 @@ import { DataProduct, selectItems } from "@/data/shop";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { CheckIcon, HeartIcon, StarIcon } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { SafeAreaView, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Toast } from "toastify-react-native";
 
 const ProductDetail = () => {
@@ -119,7 +121,10 @@ const ProductDetail = () => {
 
       <ViewPager />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 40 }}
+        showsVerticalScrollIndicator={false}
+      >
         <VStack className="mt-4 px-4" space="lg">
           {/* Header */}
           <HStack className="items-center justify-between">
@@ -333,6 +338,7 @@ const ProductDetail = () => {
           </HStack>
         </VStack>
       </ActionSheet>
+      <FloatingCart />
     </SafeAreaView>
   );
 };
