@@ -17,12 +17,11 @@ import { VStack } from "@/components/ui/vstack";
 import { DataProduct, selectItems } from "@/data/shop";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { CheckIcon, HeartIcon, StarIcon } from "lucide-react-native";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { SafeAreaView, ScrollView } from "react-native";
 
-import { Toast } from "toastify-react-native";
-
 import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
+import { Toast } from "toastify-react-native";
 
 const ProductDetail = () => {
   const actionSheetRef = useRef<ActionSheetRef>(null);
@@ -30,13 +29,67 @@ const ProductDetail = () => {
   const product = DataProduct.find((p) => p.id == id);
 
   const [seeMore, setSeeMore] = useState(false);
+
+  // MULTIPLE selections
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
 
-  // tosast and action sheet handler
+  // VARIANT PAIRS (color + size + qty)
+  const [variants, setVariants] = useState<
+    { color: string; size: string; qty: number }[]
+  >([]);
 
+  // FINAL confirmed variants
+  const [finalVariants, setFinalVariants] = useState<
+    { color: string; size: string; qty: number }[]
+  >([]);
+
+  // Generate all combinations when user selects colors/sizes
+  useEffect(() => {
+    const newVariants: { color: string; size: string; qty: number }[] = [];
+
+    selectedColors.forEach((color) => {
+      selectedSizes.forEach((size) => {
+        const existing = variants.find(
+          (v) => v.color === color && v.size === size,
+        );
+
+        newVariants.push({
+          color,
+          size,
+          qty: existing?.qty ?? 1,
+        });
+      });
+    });
+
+    setVariants(newVariants);
+  }, [selectedColors, selectedSizes]);
+
+  // Increase / Decrease per variant
+  const increaseQty = (index: number) => {
+    setVariants((prev) =>
+      prev.map((v, i) => (i === index ? { ...v, qty: v.qty + 1 } : v)),
+    );
+  };
+
+  const decreaseQty = (index: number) => {
+    setVariants((prev) =>
+      prev.map((v, i) =>
+        i === index ? { ...v, qty: Math.max(1, v.qty - 1) } : v,
+      ),
+    );
+  };
+
+  // Remove variant
+  const removeVariant = (index: number) => {
+    setVariants((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Disable confirm if no variants
+  const isConfirmDisabled = variants.length === 0;
+
+  // Toast + ActionSheet handler
   const showRegularToast = () => {
-    // If missing color or size → show toast
     if (selectedColors.length === 0 || selectedSizes.length === 0) {
       Toast.show({
         type: "error",
@@ -48,14 +101,8 @@ const ProductDetail = () => {
       return;
     }
 
-    // If both selected → open ActionSheet
     actionSheetRef.current?.show();
   };
-
-  const [quantity, setQuantity] = useState(1);
-
-  const increaseQty = () => setQuantity((q) => q + 1);
-  const decreaseQty = () => setQuantity((q) => (q > 1 ? q - 1 : 1)); // prevent going below 1
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
@@ -69,10 +116,12 @@ const ProductDetail = () => {
           ),
         }}
       />
+
       <ViewPager />
+
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <VStack className="mt-4 px-4" space="lg">
-          {/* Header & Rating */}
+          {/* Header */}
           <HStack className="items-center justify-between">
             <VStack>
               <Text className="text-xl font-bold">{product?.name}</Text>
@@ -119,93 +168,139 @@ const ProductDetail = () => {
             </Pressable>
           </VStack>
 
-          {/* Selection Sections */}
-          <VStack space="xl">
-            {/* Colors */}
-            <VStack space="md">
-              <Text className="text-lg font-bold">Choose Color:</Text>
-              <CheckboxGroup
-                value={selectedColors}
-                onChange={setSelectedColors}
-              >
-                <HStack space="xl" className="flex-wrap">
-                  {selectItems.colors.map((c) => (
-                    <Checkbox value={c.name} key={c.id} isDisabled={!c.stock}>
-                      <CheckboxIndicator>
-                        <CheckboxIcon as={CheckIcon} />
-                      </CheckboxIndicator>
-                      <CheckboxLabel className="ml-2">{c.name}</CheckboxLabel>
-                    </Checkbox>
-                  ))}
-                </HStack>
-              </CheckboxGroup>
-            </VStack>
-
-            {/* Sizes */}
-            <VStack space="md">
-              <Text className="text-lg font-bold">Choose Size:</Text>
-              <CheckboxGroup value={selectedSizes} onChange={setSelectedSizes}>
-                <HStack space="xl" className="flex-wrap">
-                  {selectItems.sizes.map((s) => (
-                    <Checkbox value={s.name} key={s.id} isDisabled={!s.stock}>
-                      <CheckboxIndicator>
-                        <CheckboxIcon as={CheckIcon} />
-                      </CheckboxIndicator>
-                      <CheckboxLabel className="ml-2">{s.name}</CheckboxLabel>
-                    </Checkbox>
-                  ))}
-                </HStack>
-              </CheckboxGroup>
-            </VStack>
+          {/* Color Selection */}
+          <VStack space="md">
+            <Text className="text-lg font-bold">Choose Color:</Text>
+            <CheckboxGroup value={selectedColors} onChange={setSelectedColors}>
+              <HStack space="xl" className="flex-wrap">
+                {selectItems.colors.map((c) => (
+                  <Checkbox value={c.name} key={c.id} isDisabled={!c.stock}>
+                    <CheckboxIndicator>
+                      <CheckboxIcon as={CheckIcon} />
+                    </CheckboxIndicator>
+                    <CheckboxLabel className="ml-2">{c.name}</CheckboxLabel>
+                  </Checkbox>
+                ))}
+              </HStack>
+            </CheckboxGroup>
           </VStack>
 
-          {/* Button */}
+          {/* Size Selection */}
+          <VStack space="md">
+            <Text className="text-lg font-bold">Choose Size:</Text>
+            <CheckboxGroup value={selectedSizes} onChange={setSelectedSizes}>
+              <HStack space="xl" className="flex-wrap">
+                {selectItems.sizes.map((s) => (
+                  <Checkbox value={s.name} key={s.id} isDisabled={!s.stock}>
+                    <CheckboxIndicator>
+                      <CheckboxIcon as={CheckIcon} />
+                    </CheckboxIndicator>
+                    <CheckboxLabel className="ml-2">{s.name}</CheckboxLabel>
+                  </Checkbox>
+                ))}
+              </HStack>
+            </CheckboxGroup>
+          </VStack>
+
+          {/* Set Quantity Button */}
           <Button
             className="mt-6 h-12 rounded-xl bg-sky-500"
             onPress={showRegularToast}
           >
             <ButtonText className="font-bold">Set Quantity</ButtonText>
           </Button>
+
+          {/* FINAL VARIANTS DISPLAY */}
+          {finalVariants.length > 0 && (
+            <VStack space="lg" className="mt-6 rounded-xl bg-zinc-100 p-4">
+              <Text className="text-lg font-bold text-zinc-700">
+                Your Selection
+              </Text>
+
+              {finalVariants.map((item, index) => (
+                <HStack
+                  key={index}
+                  className="items-center justify-between rounded-xl bg-white p-3"
+                >
+                  {/* Left side: Color + Size */}
+                  <HStack space="md" className="items-center">
+                    <Text className="font-semibold text-zinc-800">
+                      {item.color}
+                    </Text>
+                    <Text className="font-semibold text-zinc-800">
+                      {item.size}
+                    </Text>
+                  </HStack>
+
+                  {/* Right side: Quantity + Remove */}
+                  <HStack space="md" className="items-center">
+                    <Text className="font-bold text-zinc-700">x{item.qty}</Text>
+
+                    <Pressable
+                      onPress={() => {
+                        setFinalVariants((prev) =>
+                          prev.filter((_, i) => i !== index),
+                        );
+                      }}
+                      className="rounded-lg bg-red-500 px-3 py-1"
+                    >
+                      <Text className="font-bold text-white">X</Text>
+                    </Pressable>
+                  </HStack>
+                </HStack>
+              ))}
+            </VStack>
+          )}
         </VStack>
       </ScrollView>
+
+      {/* ACTION SHEET */}
       <ActionSheet gestureEnabled ref={actionSheetRef}>
         <VStack space="lg" className="p-6">
-          {/* Title */}
-          <VStack space="xs" className="items-center">
-            <Text className="text-xl font-bold">Colors & Sizes</Text>
-            <Text className="text-md text-zinc-500">Set Quantity</Text>
-          </VStack>
+          <Text className="text-center text-xl font-bold">Set Quantities</Text>
 
-          {/* Selected Color & Size */}
-          <VStack space="sm" className="items-center">
-            <Text className="text-lg font-semibold">
-              Color: {selectedColors[0]}
-            </Text>
-            <Text className="text-lg font-semibold">
-              Size: {selectedSizes[0]}
-            </Text>
-          </VStack>
-
-          {/* Quantity Selector */}
-          <HStack space="lg" className="mt-4 items-center justify-center">
-            <Pressable
-              onPress={decreaseQty}
-              className="rounded-full bg-zinc-200 px-4 py-2"
+          {/* VARIANT LIST */}
+          {variants.map((v, index) => (
+            <HStack
+              key={index}
+              className="items-center justify-between rounded-xl bg-zinc-100 p-3"
             >
-              <Text className="text-xl font-bold">-</Text>
-            </Pressable>
+              {/* Color + Size */}
+              <HStack space="md" className="items-center">
+                <Text className="font-semibold text-zinc-800">{v.color}</Text>
+                <Text className="font-semibold text-zinc-800">{v.size}</Text>
+              </HStack>
 
-            <Text className="w-10 text-center text-2xl font-bold">
-              {quantity}
-            </Text>
+              {/* Quantity Controls */}
+              <HStack space="md" className="items-center">
+                <Pressable
+                  onPress={() => decreaseQty(index)}
+                  className="rounded-lg bg-zinc-300 px-3 py-1"
+                >
+                  <Text className="text-xl font-bold">-</Text>
+                </Pressable>
 
-            <Pressable
-              onPress={increaseQty}
-              className="rounded-full bg-zinc-200 px-4 py-2"
-            >
-              <Text className="text-xl font-bold">+</Text>
-            </Pressable>
-          </HStack>
+                <Text className="w-6 text-center text-xl font-bold">
+                  {v.qty}
+                </Text>
+
+                <Pressable
+                  onPress={() => increaseQty(index)}
+                  className="rounded-lg bg-zinc-300 px-3 py-1"
+                >
+                  <Text className="text-xl font-bold">+</Text>
+                </Pressable>
+              </HStack>
+
+              {/* Remove */}
+              <Pressable
+                onPress={() => removeVariant(index)}
+                className="rounded-lg bg-red-500 px-3 py-1"
+              >
+                <Text className="font-bold text-white">X</Text>
+              </Pressable>
+            </HStack>
+          ))}
 
           {/* Buttons */}
           <HStack space="md" className="mt-6 justify-center">
@@ -217,13 +312,23 @@ const ProductDetail = () => {
             </Button>
 
             <Button
-              className="rounded-xl bg-sky-500 px-6"
+              isDisabled={isConfirmDisabled}
+              className={`rounded-xl px-6 ${
+                isConfirmDisabled ? "bg-zinc-300" : "bg-sky-500"
+              }`}
               onPress={() => {
-                console.log("Confirmed quantity:", quantity);
+                if (isConfirmDisabled) return;
+                setFinalVariants(variants);
                 actionSheetRef.current?.hide();
               }}
             >
-              <ButtonText className="font-bold">Confirm</ButtonText>
+              <ButtonText
+                className={`font-bold ${
+                  isConfirmDisabled ? "text-zinc-500" : "text-white"
+                }`}
+              >
+                Confirm
+              </ButtonText>
             </Button>
           </HStack>
         </VStack>
