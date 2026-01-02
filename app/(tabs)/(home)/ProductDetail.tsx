@@ -1,13 +1,7 @@
 import Cart from "@/components/custom/Cart";
 import ViewPager from "@/components/custom/ViewPager";
-import {
-  Actionsheet,
-  ActionsheetBackdrop,
-  ActionsheetContent,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
-} from "@/components/ui/actionsheet";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+
+import { Button, ButtonText } from "@/components/ui/button";
 import {
   Checkbox,
   CheckboxGroup,
@@ -16,86 +10,52 @@ import {
   CheckboxLabel,
 } from "@/components/ui/checkbox";
 import { HStack } from "@/components/ui/hstack";
-import { AddIcon, Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
-import {
-  Toast,
-  ToastDescription,
-  ToastTitle,
-  useToast,
-} from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 import { DataProduct, selectItems } from "@/data/shop";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { CheckIcon, HeartIcon, Minus, StarIcon } from "lucide-react-native";
-import React, { useState } from "react";
+import { CheckIcon, HeartIcon, StarIcon } from "lucide-react-native";
+import React, { useRef, useState } from "react";
 import { SafeAreaView, ScrollView } from "react-native";
 
+import { Toast } from "toastify-react-native";
+
+import ActionSheet, { ActionSheetRef } from "react-native-actions-sheet";
+
 const ProductDetail = () => {
+  const actionSheetRef = useRef<ActionSheetRef>(null);
   const { id } = useLocalSearchParams();
   const product = DataProduct.find((p) => p.id == id);
 
-  // --- States ---
   const [seeMore, setSeeMore] = useState(false);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [quantity, setQuantity] = useState(1);
-  const [showActionsheet, setShowActionsheet] = useState(false);
 
-  const toast = useToast();
+  // tosast and action sheet handler
 
-  // --- Logic: Handle Submission & Validation ---
-  const handleOpenActionsheet = () => {
-    const colorValid = selectedColors.length > 0;
-    const sizeValid = selectedSizes.length > 0;
-
-    if (colorValid && sizeValid) {
-      // 1. Clear toasts to avoid overlay fighting
-      if (toast.isActive("validation-error")) {
-        toast.close("validation-error");
-      }
-      // 2. Small delay ensures the Toast unmounts before Actionsheet mounts
-      setTimeout(() => {
-        setShowActionsheet(true);
-      }, 50);
-    } else {
-      const missing =
-        !colorValid && !sizeValid
-          ? "Color and Size"
-          : !colorValid
-            ? "Color"
-            : "Size";
-
-      // Use a fixed ID to prevent multiple toasts from stacking
-      if (!toast.isActive("validation-error")) {
-        toast.show({
-          id: "validation-error",
-          placement: "top",
-          duration: 2500,
-          render: ({ id }) => {
-            return (
-              <Toast
-                nativeID={id}
-                action="error"
-                variant="solid"
-                className="mt-10"
-              >
-                <VStack space="xs">
-                  <ToastTitle className="font-bold text-white">
-                    Selection Required
-                  </ToastTitle>
-                  <ToastDescription className="text-white">
-                    Please select a {missing} before proceeding.
-                  </ToastDescription>
-                </VStack>
-              </Toast>
-            );
-          },
-        });
-      }
+  const showRegularToast = () => {
+    // If missing color or size → show toast
+    if (selectedColors.length === 0 || selectedSizes.length === 0) {
+      Toast.show({
+        type: "error",
+        visibilityTime: 1500,
+        position: "bottom",
+        text1: "Please Choose Both Color and Size.",
+        useModal: false,
+      });
+      return;
     }
+
+    // If both selected → open ActionSheet
+    actionSheetRef.current?.show();
   };
+
+  const [quantity, setQuantity] = useState(1);
+
+  const increaseQty = () => setQuantity((q) => q + 1);
+  const decreaseQty = () => setQuantity((q) => (q > 1 ? q - 1 : 1)); // prevent going below 1
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
@@ -109,7 +69,6 @@ const ProductDetail = () => {
           ),
         }}
       />
-
       <ViewPager />
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <VStack className="mt-4 px-4" space="lg">
@@ -137,6 +96,7 @@ const ProductDetail = () => {
                 (1 - Number(product?.discount ?? 0) / 100)
               ).toFixed(2)}
             </Text>
+
             {Number(product?.discount) > 0 && (
               <Text className="font-bold text-zinc-400 line-through">
                 ${(product?.Price ?? 0).toFixed(2)}
@@ -161,6 +121,7 @@ const ProductDetail = () => {
 
           {/* Selection Sections */}
           <VStack space="xl">
+            {/* Colors */}
             <VStack space="md">
               <Text className="text-lg font-bold">Choose Color:</Text>
               <CheckboxGroup
@@ -180,6 +141,7 @@ const ProductDetail = () => {
               </CheckboxGroup>
             </VStack>
 
+            {/* Sizes */}
             <VStack space="md">
               <Text className="text-lg font-bold">Choose Size:</Text>
               <CheckboxGroup value={selectedSizes} onChange={setSelectedSizes}>
@@ -197,77 +159,75 @@ const ProductDetail = () => {
             </VStack>
           </VStack>
 
+          {/* Button */}
           <Button
-            onPress={handleOpenActionsheet}
             className="mt-6 h-12 rounded-xl bg-sky-500"
+            onPress={showRegularToast}
           >
             <ButtonText className="font-bold">Set Quantity</ButtonText>
           </Button>
         </VStack>
       </ScrollView>
+      <ActionSheet gestureEnabled ref={actionSheetRef}>
+        <VStack space="lg" className="p-6">
+          {/* Title */}
+          <VStack space="xs" className="items-center">
+            <Text className="text-xl font-bold">Colors & Sizes</Text>
+            <Text className="text-md text-zinc-500">Set Quantity</Text>
+          </VStack>
 
-      {/* --- Actionsheet Component --- */}
-      <Actionsheet
-        isOpen={showActionsheet}
-        onClose={() => setShowActionsheet(false)}
-      >
-        <ActionsheetBackdrop />
-        <ActionsheetContent className="pb-8">
-          <ActionsheetDragIndicatorWrapper>
-            <ActionsheetDragIndicator />
-          </ActionsheetDragIndicatorWrapper>
+          {/* Selected Color & Size */}
+          <VStack space="sm" className="items-center">
+            <Text className="text-lg font-semibold">
+              Color: {selectedColors[0]}
+            </Text>
+            <Text className="text-lg font-semibold">
+              Size: {selectedSizes[0]}
+            </Text>
+          </VStack>
 
-          <VStack className="w-full p-4" space="xl">
-            <VStack space="xs" className="items-center">
-              <Text className="text-xs font-semibold uppercase text-zinc-500">
-                Current Selections
-              </Text>
-              <Text className="text-center text-lg font-bold">
-                {selectedColors.join(", ")} — {selectedSizes.join(", ")}
-              </Text>
-            </VStack>
+          {/* Quantity Selector */}
+          <HStack space="lg" className="mt-4 items-center justify-center">
+            <Pressable
+              onPress={decreaseQty}
+              className="rounded-full bg-zinc-200 px-4 py-2"
+            >
+              <Text className="text-xl font-bold">-</Text>
+            </Pressable>
 
-            <VStack space="md" className="items-center py-4">
-              <Text className="text-md font-medium">Quantity</Text>
-              <HStack space="2xl" className="items-center">
-                <Button
-                  variant="outline"
-                  action="secondary"
-                  className="h-14 w-14 rounded-full border-zinc-300"
-                  onPress={() => setQuantity(Math.max(1, quantity - 1))}
-                >
-                  <ButtonIcon as={Minus} className="text-zinc-600" />
-                </Button>
+            <Text className="w-10 text-center text-2xl font-bold">
+              {quantity}
+            </Text>
 
-                <Text className="w-12 text-center text-3xl font-bold">
-                  {quantity}
-                </Text>
+            <Pressable
+              onPress={increaseQty}
+              className="rounded-full bg-zinc-200 px-4 py-2"
+            >
+              <Text className="text-xl font-bold">+</Text>
+            </Pressable>
+          </HStack>
 
-                <Button
-                  variant="outline"
-                  action="secondary"
-                  className="h-14 w-14 rounded-full border-zinc-300"
-                  onPress={() => setQuantity(quantity + 1)}
-                >
-                  <ButtonIcon as={AddIcon} className="text-zinc-600" />
-                </Button>
-              </HStack>
-            </VStack>
+          {/* Buttons */}
+          <HStack space="md" className="mt-6 justify-center">
+            <Button
+              className="rounded-xl bg-zinc-300 px-6"
+              onPress={() => actionSheetRef.current?.hide()}
+            >
+              <ButtonText className="font-bold text-black">Cancel</ButtonText>
+            </Button>
 
             <Button
-              className="h-14 w-full rounded-2xl bg-sky-600"
+              className="rounded-xl bg-sky-500 px-6"
               onPress={() => {
-                setShowActionsheet(false);
-                // Trigger success logic here (e.g., adding to cart)
+                console.log("Confirmed quantity:", quantity);
+                actionSheetRef.current?.hide();
               }}
             >
-              <ButtonText className="text-lg font-bold">
-                Confirm & Add to Cart
-              </ButtonText>
+              <ButtonText className="font-bold">Confirm</ButtonText>
             </Button>
-          </VStack>
-        </ActionsheetContent>
-      </Actionsheet>
+          </HStack>
+        </VStack>
+      </ActionSheet>
     </SafeAreaView>
   );
 };
