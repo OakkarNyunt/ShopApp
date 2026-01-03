@@ -11,8 +11,9 @@ import { FlatList, ScrollView } from "react-native";
 import Categories from "@/components/custom/Categories";
 import Product from "@/components/custom/Product";
 import { Box } from "@/components/ui/box";
-import { Button, ButtonText } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 import { MoveUpRightIcon } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -63,8 +64,8 @@ export default function HomeScreen() {
             columnWrapperStyle={{ gap: 5 }}
           />
           <Box className="mx-auto my-8">
-            <Button variant="solid" size="md" action="positive">
-              <ButtonText className="text-white">See More</ButtonText>
+            <Button>
+              <Text className="text-white">See More</Text>
               <Icon as={MoveUpRightIcon} />
             </Button>
           </Box>

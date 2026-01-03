@@ -6,6 +6,8 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
@@ -27,11 +29,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="Cart"
         options={{
-          title: "Explore",
+          title: "Cart",
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <FontAwesome name="shopping-cart" size={24} color={color} />
           ),
         }}
       />

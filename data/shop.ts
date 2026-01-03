@@ -174,6 +174,35 @@ export const DataProduct = [
       "Compare Samsung Galaxy phones and explore their key differences in our side-by-side specs comparison tool. Search for the perfect Galaxy phone and find the ideal one for you.",
   },
 ];
+export const carts = [
+  {
+    id: "1",
+    title: "Samsaung",
+    price: 100,
+    image: image1,
+    items: [
+      { id: "1", color: "blue", size: "S", quantity: 1 },
+      // { id: "2", color: "White", size: "M", quantity: 2 },
+    ],
+  },
+  {
+    id: "2",
+    title: "Honor",
+    price: 200,
+    image: image2,
+    items: [{ id: "1", color: "blue", size: "L", quantity: 1 }],
+    // { id: "2", color: "White", size: "M", quantity: 2 },
+  },
+  {
+    id: "3",
+    title: "Redmi",
+    price: 300,
+    image: image3,
+    items: [{ id: "1", color: "blue", size: "M", quantity: 5 }],
+    // { id: "2", color: "White", size: "M", quantity: 2 },
+  },
+];
+
 export const selectItems = {
   colors: [
     { id: "uuid1", name: "black", bgColor: "#000000", stock: true },

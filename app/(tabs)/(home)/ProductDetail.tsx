@@ -2,7 +2,7 @@ import Cart from "@/components/custom/Cart";
 import FloatingCart from "@/components/custom/FloatingCart";
 import ViewPager from "@/components/custom/ViewPager";
 
-import { Button, ButtonText } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Checkbox,
   CheckboxGroup,
@@ -212,7 +212,7 @@ const ProductDetail = () => {
             className="mt-6 h-12 rounded-xl bg-sky-500"
             onPress={showRegularToast}
           >
-            <ButtonText className="font-bold">Set Quantity</ButtonText>
+            <Text className="font-bold">Set Quantity</Text>
           </Button>
 
           {/* FINAL VARIANTS DISPLAY */}
@@ -313,11 +313,11 @@ const ProductDetail = () => {
               className="rounded-xl bg-zinc-300 px-6"
               onPress={() => actionSheetRef.current?.hide()}
             >
-              <ButtonText className="font-bold text-black">Cancel</ButtonText>
+              <Text className="font-bold text-black">Cancel</Text>
             </Button>
 
             <Button
-              isDisabled={isConfirmDisabled}
+              disabled={isConfirmDisabled}
               className={`rounded-xl px-6 ${
                 isConfirmDisabled ? "bg-zinc-300" : "bg-sky-500"
               }`}
@@ -327,13 +327,13 @@ const ProductDetail = () => {
                 actionSheetRef.current?.hide();
               }}
             >
-              <ButtonText
+              <Text
                 className={`font-bold ${
                   isConfirmDisabled ? "text-zinc-500" : "text-white"
                 }`}
               >
                 Confirm
-              </ButtonText>
+              </Text>
             </Button>
           </HStack>
         </VStack>
